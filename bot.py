@@ -1,19 +1,42 @@
-from random import choice, randint
+from random import choice
 from player import Player
 
 
 class Bot(Player):
-    def __init__(self, board_width=7):
-        self.__name = choice(self.NAMES)  # inherited from Player
-        self.__symbol = chr(randint(33, 126))  # choose from all visible ASCII symbols
+    def __init__(self, id):
+        # set variables (without help of user)
+        self.__id = id
         self.__score = 0
+        self.__name = self.__choose_name()
+        self.__symbol = self.__choose_symbol()
         self.__depth = 5
-        self.__board_width = board_width
 
-    def get_move(self):
-        for i in range(self.__board_width):
-            pass
-        return 0 # (score, move)
+    def __choose_name(self):
+        # bot will always pick a random name from "NAMES" (inherited from super class)
+        return choice(self.NAMES)
+
+    def __choose_symbol(self):
+        # 'x' and 'o' are set as default symbols since they're well distinguishable
+        return 'x' if self.__id == 1 else 'o'
+
+    def __negamax(self, alhpa, beta, multiplier):
+        if depth == 0:
+            return (color * score)
+
+        best_value = -9999
+        for i in range(height):
+            value = -1 * negamax()
+            best_value = max(best_value, value)
+
+            alpha = max(alpha, value)
+            if alhpa >= beta:
+                break
+
+        return best_value
+
+    def get_move(self, board):
+        # "negamax"
+        return self.__negamax(-999, 999, 1)[1]
 
     @property
     def name(self):

@@ -1,27 +1,39 @@
-from font_styles import FontStyles
+from fancy_print import FancyPrint
 
 
 class GUI:
-    def __init__(self, width=7, height=6):
-        self.__width = width
-        self.__height = height
-        self.__font_styles = FontStyles()
+    def __init__(self):
+        # for better visualization, an instance of "FancyPrint" is needed
+        self.__fancy_print = FancyPrint()
 
-    def show(self, db_interface):
-        print(" " + " ".join(map(str, range(1, self.__width + 1))))
-        for y in range(self.__height - 1, -1, -1):
-            print(end="|")
-            for x in range(self.__width):
-                print(db_interface.get_field(x, y), end="|")
-            print()
-
-    def show_winning_move(self, db_interface, winning_line):
-        print(" 1 2 3 4 5 6 7")
-        for y in range(self.__height - 1, -1, -1):
-            print(end="|")
-            for x in range(self.__width):
-                if (x, y) in winning_line:
-                    print(self.__font_styles.WARNING + self.__font_styles.BOLD + db_interface.get_field(x, y) + self.__font_styles.END, end="|")
-                else:
-                    print(db_interface.get_field(x, y), end="|")
-            print()
+    def show(self, board, width, height, id_to_symbol, winning_line=False):
+        # firstly, print column names (usually from 1 to 7)
+        print(' ' + ' '.join(map(str, range(1, width + 1))))
+        # if a player has won, highlight the winning line
+        if winning_line:
+            # because (0, 0) is the bottom-left corner of board, y has to iterate backwards through rows
+            for y in range(height - 1, -1, -1):
+                # output left barrier
+                print(end="|")
+                # print player symbols instead of player id (unoccupied fields are represented as spaces) for each field
+                # columns are separated using the pipe symbol
+                for x in range(width):
+                    if (x, y) in winning_line:
+                        # highlight the symbol on this field to show the winning line
+                        self.__fancy_print.win(id_to_symbol[board[(x, y)]], '|')
+                    else:
+                        # a standard field is printed with default font style
+                        print(id_to_symbol[board[(x, y)]], end="|")
+                # print a line break so that next row starts in the next line
+                print()
+        else:
+            # because (0, 0) is the bottom-left corner of board, y has to iterate backwards through rows
+            for y in range(height - 1, -1, -1):
+                # output left barrier
+                print(end="|")
+                # print player symbols instead of player id (unoccupied fields are represented as spaces) for each field
+                # columns are separated using the pipe symbol
+                for x in range(width):
+                    print(id_to_symbol[board[(x, y)]], end="|")
+                # print a line break so that next row starts in the next line
+                print()
