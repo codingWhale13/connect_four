@@ -20,7 +20,7 @@ class GUI:
                 for x in range(width):
                     if (x, y) in winning_line:
                         # highlight the symbol on this field to show the winning line
-                        self.__fancy_print.win(id_to_symbol[board[(x, y)]], '|')
+                        self.__fancy_print.yellow(id_to_symbol[board[(x, y)]], '|')
                     else:
                         # a standard field is printed with default font style
                         print(id_to_symbol[board[(x, y)]], end="|")

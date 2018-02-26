@@ -16,21 +16,24 @@ class Game:
         # player objects will be set in "initialize_match"
         self.__player_1 = None
         self.__player_2 = None
+        # players will have these well distinguishable symbols by default
+        self.__player_1_default_symbol = 'x'
+        self.__player_2_default_symbol = 'o'
         # "id_to_symbol" translates field states from database value to output symbol; player symbols will be set later
         self.__id_to_symbol = {0: ' '}
         # start game session
         self.__play()
 
     def __welcome(self):
-        print("Ready to play CONNECT FOUR?")
-        print("Here we go!\n")
+        self.__fancy_print.blue("Ready to play CONNECT FOUR?")
+        self.__fancy_print.blue("Here we go!")
 
     def __human_player_wanted(self, player_number):
         # inform user about options
-        print("Player", player_number, "shall be:")
+        print("Player {} shall be:".format(player_number))
         print("-> human (press 'H')")
         print("-> a bot (press 'B')")
-        # ask for input until correct decision has been made
+        # ask for input until valid decision has been made
         while True:
             # let user choose type of player (human or bot) by pressing the corresponding key
             player_type = input().lower()
@@ -39,19 +42,25 @@ class Game:
             elif player_type == 'b':
                 return False
             else:
-                print("Press 'H' or 'B'.")
+                self.__fancy_print.red("ERROR: Press 'H' or 'B'.")
 
     def __initialize_match(self):
         # create either objects of "Player" or "Bot" for both players - this is decided in "human_player_wanted"
         # initialization of player names and symbols for representation on board is done in "Player" and "Bot"
-        self.__player_1 = Player(1) if self.__human_player_wanted(1) else Bot(1)
-        self.__player_2 = Player(2) if self.__human_player_wanted(2) else Bot(2)
+        if self.__human_player_wanted(1):
+            self.__player_1 = Player(1, self.__player_1_default_symbol)
+        else:
+            Bot(1, self.__player_1_default_symbol)
+        if self.__human_player_wanted(2):
+            self.__player_2 = Player(2, self.__player_2_default_symbol)
+        else:
+            Bot(2, self.__player_2_default_symbol)
 
         # ensure that players have unique names and symbols
         if self.__player_1.name == self.__player_2.name or self.__player_1.symbol == self.__player_2.symbol:
             if type(self.__player_1) == Player and type(self.__player_2) == Player:
                 # if both players are human, restart initialization
-                self.__fancy_print.fail("Both players have the same name or symbol! Try again.")
+                self.__fancy_print.red("ERROR: Both players have the same name or symbol! Try again.")
                 self.__initialize_match()
                 return  # abort current call of "initialize_match" since new one has been created
             else:
@@ -62,26 +71,23 @@ class Game:
                         self.__player_1 = Bot()
                     else:
                         self.__player_2 = Bot()
-                # if both players have same symbols, the human player must have chosen the default symbol that was
+                # if both players have the same symbol, the human player must have chosen the default symbol that was
                 # intended for the other player - to resolve this, the bot simply picks 'o' instead of 'x' or vice versa
-                while self.__player_1.symbol == self.__player_2.symbol:
-                    if type(self.__player_1) == Bot:
-                        self.__player_1.symbol == 'o'
-                    else:
-                        self.__player_2.symbol == 'x'
+                if type(self.__player_1) == Bot:
+                    self.__player_1.symbol == self.__player_2_default_symbol
+                else:
+                    self.__player_2.symbol == self.__player_1_default_symbol
 
         # map ids to symbols
         self.__id_to_symbol[self.__player_1.id] = self.__player_1.symbol
         self.__id_to_symbol[self.__player_2.id] = self.__player_2.symbol
 
         # summarize player information before exiting initialization
-        print(end="Player 1 (")
-        print(end="HUMAN") if type(self.__player_1) == Player else print(end="BOT")
-        print("): " + self.__player_1.name + " is '" + self.__player_1.symbol + "'.")
-        print(end="Player 2 (")
-        print(end="HUMAN") if type(self.__player_2) == Player else print(end="BOT")
-        print("): " + self.__player_2.name + " is '" + self.__player_2.symbol + "'.")
-        print("Ready to go!\n")
+        self.__fancy_print.blue("\nGreat. Let's start the game!")
+        print("Player 1 ({}): {} is '{}'.".format("HUMAN" if type(self.__player_1) == Player else "BOT",
+                                                  self.__player_1.name, self.__player_1.symbol))
+        print("Player 2 ({}): {} is '{}'.\n".format("HUMAN" if type(self.__player_2) == Player else "BOT",
+                                                  self.__player_2.name, self.__player_2.symbol))
 
     def __move(self, player):
         # a move of a bot will always be valid - thus, only for a human player further checking is needed
@@ -116,7 +122,7 @@ class Game:
                     # player 1 has won; show board (emphasizing winning line) one last time
                     self.__gui.show(self.__board.get_board(), self.__board.width, self.__board.height,
                                     self.__id_to_symbol, winning_line)
-                    self.__fancy_print.success(self.__player_1.name + " has won. Good game!")
+                    self.__fancy_print.blue("{} has won. Good game!".format(self.__player_1.name))
                     # increase the score of player 1 by one before exiting method
                     self.__player_1.score += 1
                     return
@@ -131,7 +137,7 @@ class Game:
                     # player 2 has won; show board (emphasizing winning line) one last time
                     self.__gui.show(self.__board.get_board(), self.__board.width, self.__board.height,
                                     self.__id_to_symbol, winning_line)
-                    self.__fancy_print.success(self.__player_2.name + " has won. Good game!")
+                    self.__fancy_print.blue("{} has won. Good game!".format(self.__player_2.name))
                     # increase the score of player 2 by one before exiting method
                     self.__player_2.score += 1
                     return
@@ -139,7 +145,7 @@ class Game:
             # if board is full, show it one last time and let players know that match is a draw before exiting method
             if self.__rules.check_game_over(self.__board.get_board(), self.__board.width, self.__board.height):
                 self.__gui.show(self.__board.get_board(), self.__board.width, self.__board.height, self.__id_to_symbol)
-                self.__fancy_print.success("It's a draw!")
+                self.__fancy_print.blue("It's a draw!")
                 return
 
     def __settings(self):
@@ -148,23 +154,27 @@ class Game:
             if input_change_player_settings == "y":
                 pass  # TODO: change player settings
             if input_change_player_settings == "n":
-                print("Alright. Next match starts now!")
+                self.__fancy_print.blue("Alright. Next match starts now!")
                 break
-            print("Press 'Y' or 'N'.")
+            self.__fancy_print.red("ERROR: Press 'Y' or 'N'.")
+
+    def __goodbye(self):
+        # self.__show_stats
+        self.__fancy_print.blue("Thank you for playing. Bye for now!")
 
     def __keep_playing(self):
         while True:
             input_keep_playing = input("What a match! Would you like to play another one? (Y/N) ").lower()
             if input_keep_playing == 'y':
-                print("Cool, next match starts now!")
+                self.__fancy_print.blue("Cool, next match starts now!")
                 return True
             if input_keep_playing == 'n':
-                print("C U!")
+                self.__goodbye()
                 return False
-            print("Press 'Y' or 'N'.")
+            self.__fancy_print.red("ERROR: Press 'Y' or 'N'.")
 
     def __play(self):
-        # welcome the players once in the beginning
+        # welcome players once in the beginning
         self.__welcome()
         # before playing, players need to be set etc.; this is done in "initialize_match"
         self.__initialize_match()
@@ -173,5 +183,7 @@ class Game:
             # "play_match" will carry out an entire match until a player wins or there are no moves left
             self.__play_match()
             # find out if another match is wanted and react accordingly with "keep_playing"
-            if not self.__keep_playing():
+            if self.__keep_playing():
+                self.__board.clear()
+            else:
                 break

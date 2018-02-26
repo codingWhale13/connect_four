@@ -19,7 +19,7 @@ class Rules:
         # 3. horizontal
         # 4. lower left - upper right
         for alignment in range(4):
-            # "line" stores all connected tokens that will be needed for display later
+            # "line" stores all connected tokens that may be needed for display later
             # position of latest move will always be connected to this line, thus it's included from the beginning
             line = [last_move]
             # starting from last move's position, search for adjacent neighbors in both directions (e.g. up and down)
@@ -49,12 +49,12 @@ class Rules:
 
     def check_game_over(self, board, width, height):
         # if all fields in the top row are occupied, the game is over
-        return all(board[(x, height - 1)] != 0 for x in range(width))
+        return not all(board[(x, height - 1)] == 0 for x in range(width))
 
     def check_move(self, board, height, column):
         # check if there is at least one free field in desired column by looking at value of top field
         if board[(column, height - 1)] == 0:
             return True
-        # let use know the move is not possible - "column" is zero-based and needs to be increased by one for display
-        self.__fancy_print.fail("Column " + str(column + 1) + " is already full! Try again.")
+        # let user know the move is not possible - "column" is zero-based and needs to be increased by one for display
+        self.__fancy_print.fail("Column {} is already full! Try again.".format(column + 1))
         return False

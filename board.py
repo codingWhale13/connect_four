@@ -22,11 +22,7 @@ class Board:
         # save this most recent move as an (x, y) position - this makes it easier to check for a win
         self.__last_move = (column, y)
 
-    def get_board(self):
-        # simply return the dictionary requested from "db_interface"
-        return self.__db_interface.get_board(self.__width, self.__height)
-
-    def clear_board(self):
+    def clear(self):
         # instruct "db_interface" to reset entries in database
         self.__db_interface.clear_board()
 
@@ -42,3 +38,8 @@ class Board:
     @property
     def last_move(self):
         return self.__last_move
+
+    @property
+    def board(self):
+        # simply return the dictionary requested from "db_interface"
+        return self.__db_interface.get_board(self.__width, self.__height)
