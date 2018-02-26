@@ -4,24 +4,20 @@ from rules import Rules
 
 
 class Bot(Player):
-    def __init__(self, id):
+    def __init__(self, id: int, default_symbol: str) -> None:
         # set variables (without help of user)
         self.__id = id
         self.__score = 0
         self.__name = self.__choose_name()
-        self.__symbol = self.__choose_symbol()
+        self.__symbol = default_symbol
         self.__depth = 5
         self.__rules = Rules()
 
-    def __choose_name(self):
+    def __choose_name(self) -> str:
         # bot will always pick a random name from "NAMES" (inherited from super class "Player")
         return choice(self.NAMES)
 
-    def __choose_symbol(self):
-        # 'x' and 'o' are set as default symbols since they're well distinguishable
-        return 'x' if self.__id == 1 else 'o'
-
-    def __negamax(self, board, depth, alhpa, beta, multiplier):
+    def __negamax(self, board, depth, alhpa, beta, multiplier) -> tuple:
         if depth == 0 or self.__rules.check_game_over(board):
             return (multiplier * score)
 
@@ -36,7 +32,7 @@ class Bot(Player):
 
         return (best_value, -1)
 
-    def get_move(self, board):
+    def get_move(self, board) -> int:
         # "negamax" algorithm determines best move
         return self.__negamax(board, self.__depth, -999, 999, 1)[1]
 

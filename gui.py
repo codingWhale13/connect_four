@@ -2,11 +2,11 @@ from fancy_print import FancyPrint
 
 
 class GUI:
-    def __init__(self):
+    def __init__(self) -> None:
         # for better visualization, an instance of "FancyPrint" is needed
         self.__fancy_print = FancyPrint()
 
-    def show(self, board, width, height, id_to_symbol, winning_line=False):
+    def show(self, board: dict, width: int, height: int, id_to_symbol: dict, winning_line: bool = False) -> None:
         # firstly, print column names (usually from 1 to 7)
         print(' ' + ' '.join(map(str, range(1, width + 1))))
         # if a player has won, highlight the winning line

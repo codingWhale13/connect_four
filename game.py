@@ -7,7 +7,7 @@ from rules import Rules
 
 
 class Game:
-    def __init__(self):
+    def __init__(self) -> None:
         # create instances of needed classes
         self.__board = Board()
         self.__gui = GUI()
@@ -24,11 +24,11 @@ class Game:
         # start game session
         self.__play()
 
-    def __welcome(self):
+    def __welcome(self) -> None:
         self.__fancy_print.blue("Ready to play CONNECT FOUR?")
         self.__fancy_print.blue("Here we go!")
 
-    def __human_player_wanted(self, player_number):
+    def __human_player_wanted(self, player_number: int) -> bool:
         # inform user about options
         print("Player {} shall be:".format(player_number))
         print("-> human (press 'H')")
@@ -44,7 +44,7 @@ class Game:
             else:
                 self.__fancy_print.red("ERROR: Press 'H' or 'B'.")
 
-    def __initialize_match(self):
+    def __initialize_match(self) -> None:
         # create either objects of "Player" or "Bot" for both players - this is decided in "human_player_wanted"
         # initialization of player names and symbols for representation on board is done in "Player" and "Bot"
         if self.__human_player_wanted(1):
@@ -68,15 +68,15 @@ class Game:
                 # by creating a new Bot instance, a new random name is given
                 while self.__player_1.name == self.__player_2.name:
                     if type(self.__player_1) == Bot:
-                        self.__player_1 = Bot()
+                        self.__player_1 = Bot(1, self.__player_1_default_symbol)
                     else:
-                        self.__player_2 = Bot()
+                        self.__player_2 = Bot(2, self.__player_2_default_symbol)
                 # if both players have the same symbol, the human player must have chosen the default symbol that was
                 # intended for the other player - to resolve this, the bot simply picks 'o' instead of 'x' or vice versa
                 if type(self.__player_1) == Bot:
-                    self.__player_1.symbol == self.__player_2_default_symbol
+                    self.__player_1.symbol = self.__player_2_default_symbol
                 else:
-                    self.__player_2.symbol == self.__player_1_default_symbol
+                    self.__player_2.symbol = self.__player_1_default_symbol
 
         # map ids to symbols
         self.__id_to_symbol[self.__player_1.id] = self.__player_1.symbol
@@ -89,7 +89,7 @@ class Game:
         print("Player 2 ({}): {} is '{}'.\n".format("HUMAN" if type(self.__player_2) == Player else "BOT",
                                                   self.__player_2.name, self.__player_2.symbol))
 
-    def __move(self, player):
+    def __move(self, player: Player) -> None:
         # a move of a bot will always be valid - thus, only for a human player further checking is needed
         if type(player) == Bot:
             self.__board.do_move(player.get_move(), player.id)
@@ -103,7 +103,7 @@ class Game:
             # when a legal move is given, "board.do_move" organizes actually playing it
             self.__board.do_move(desired_move, player.id)
 
-    def __play_match(self):
+    def __play_match(self) -> None:
         # "match_round" keeps track of number of played moves so far
         match_round = 0
         while True:
@@ -116,7 +116,7 @@ class Game:
                 self.__move(self.__player_1)
                 # check if player 1 has won by playing the latest move
                 winning_line = self.__rules.check_win(self.__board.get_board(), self.__board.width, self.__board.height,
-                                                      self.__board.last_move, self.__player_1.id)
+                                                      self.__board.get_last_move(), self.__player_1.id)
                 # "winning_line" is either None or a list of tuples that store positions of tokens which led to win
                 if winning_line:
                     # player 1 has won; show board (emphasizing winning line) one last time
@@ -131,7 +131,7 @@ class Game:
                 self.__move(self.__player_2)
                 # check if player 2 has won by playing the latest move
                 winning_line = self.__rules.check_win(self.__board.get_board(), self.__board.width, self.__board.height,
-                                                      self.__board.last_move, self.__player_2.id)
+                                                      self.__board.get_last_move(), self.__player_2.id)
                 # "winning_line" is either None or a list of tuples that store positions of tokens which led to win
                 if winning_line:
                     # player 2 has won; show board (emphasizing winning line) one last time
@@ -148,7 +148,7 @@ class Game:
                 self.__fancy_print.blue("It's a draw!")
                 return
 
-    def __settings(self):
+    def __settings(self) -> None:
         while True:
             input_change_player_settings = input("Do you want to change any player settings? (Y/N): ").lower()
             if input_change_player_settings == "y":
@@ -158,11 +158,11 @@ class Game:
                 break
             self.__fancy_print.red("ERROR: Press 'Y' or 'N'.")
 
-    def __goodbye(self):
+    def __goodbye(self) -> None:
         # self.__show_stats
         self.__fancy_print.blue("Thank you for playing. Bye for now!")
 
-    def __keep_playing(self):
+    def __keep_playing(self) -> bool:
         while True:
             input_keep_playing = input("What a match! Would you like to play another one? (Y/N) ").lower()
             if input_keep_playing == 'y':
@@ -173,7 +173,7 @@ class Game:
                 return False
             self.__fancy_print.red("ERROR: Press 'Y' or 'N'.")
 
-    def __play(self):
+    def __play(self) -> None:
         # welcome players once in the beginning
         self.__welcome()
         # before playing, players need to be set etc.; this is done in "initialize_match"
@@ -184,6 +184,6 @@ class Game:
             self.__play_match()
             # find out if another match is wanted and react accordingly with "keep_playing"
             if self.__keep_playing():
-                self.__board.clear()
+                self.__board.clear_board()
             else:
                 break

@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice
 from fancy_print import FancyPrint
 
 
@@ -483,7 +483,7 @@ class Player:
         "Zoe", "Zofia", "Zoila", "Zola", "Zona", "Zonia", "Zora", "Zoraida", "Zula", "Zulema", "Zulma"
     )
 
-    def __init__(self, id, default_symbol):
+    def __init__(self, id: int, default_symbol: str) -> None:
         self.__fancy_print = FancyPrint()
         # set variables (some with help of user)
         self.__id = id
@@ -491,7 +491,7 @@ class Player:
         self.__name = self.__choose_name()
         self.__symbol = self.__choose_symbol(default_symbol)
 
-    def __choose_name(self):
+    def __choose_name(self) -> str:
         while True:
             input_name = input("Player {}: Enter your name or hit ENTER to get a random one: ".format(self.__id))
             if len(input_name) == 0:
@@ -503,7 +503,7 @@ class Player:
             # invalid input leads to a warning before program asks for input again
             self.__fancy_print.red("ERROR: Your name is too long. Try again.")
 
-    def __choose_symbol(self, default_symbol):
+    def __choose_symbol(self, default_symbol: str) -> str:
         while True:
             input_symbol = input(
                 "{}: Enter your character or hit ENTER to use default symbol '{}':".format(self.__name, default_symbol))
@@ -520,7 +520,7 @@ class Player:
             # only one character is allowed since otherwise the gui couldn't display the board well
             self.__fancy_print.red("ERROR: That's more than one character. Try again.")
 
-    def get_move(self):
+    def get_move(self) -> None:
         while True:
             input_move = input("{}: Enter column number to insert token: ".format(self.__name))
             try:

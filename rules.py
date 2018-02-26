@@ -2,17 +2,17 @@ from fancy_print import FancyPrint
 
 
 class Rules:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__fancy_print = FancyPrint()
         # these tuples denote changes in x and y for the 8 adjacent neighbors of any field (N, NW, W, SW, S, SE, E, NE)
         self.__x_directions = (0, 1, 1, 1, 0, -1, -1, -1)
         self.__y_directions = (1, 1, 0, -1, -1, -1, 0, 1)
 
-    def __on_board(self, x, y, width, height):
+    def __on_board(self, x: int, y: int, width: int, height: int) -> bool:
         # check if (x, y) is a valid position on the board
         return -1 < x < width and -1 < y < height
 
-    def check_win(self, board, width, height, last_move, player_number):
+    def check_win(self, board: dict, width: int, height: int, last_move: tuple, player_number: int) -> bool:
         # check for at least four consecutive tokens from one player; search order is:
         # 1. vertical
         # 2. upper left - lower right
@@ -47,11 +47,11 @@ class Rules:
         # if no win has been detected until now, return False instead of a list of tuples
         return False
 
-    def check_game_over(self, board, width, height):
+    def check_game_over(self, board: dict, width: int, height: int) -> bool:
         # if all fields in the top row are occupied, the game is over
         return not all(board[(x, height - 1)] == 0 for x in range(width))
 
-    def check_move(self, board, height, column):
+    def check_move(self, board: dict, height: int, column: int) -> bool:
         # check if there is at least one free field in desired column by looking at value of top field
         if board[(column, height - 1)] == 0:
             return True
