@@ -1,14 +1,14 @@
 class Rules:
     # these tuples denote changes in x and y for 4 of 8 adjacent neighbors of any field (N, NW, W, SW)
     # to get the 4 neighbors on the other side, simply multiply the x and y values by -1
-    __X_DIRECTIONS = (0, 1, 1, 1)
-    __Y_DIRECTIONS = (1, 1, 0, -1)
+    __X_DIRECTIONS = (0, -1, -1, -1)
+    __Y_DIRECTIONS = (-1, -1, 0, 1)
 
     def __on_board(self, x: int, y: int, width: int, height: int) -> bool:
         # check if (x, y) is a valid position on the board
         return -1 < x < width and -1 < y < height
 
-    def check_win(self, board: dict, width: int, height: int, last_move: tuple, player_number: int) -> list:
+    def check_win(self, board: dict, width: int, height: int, last_move: tuple, player_id: int) -> list:
         # check for at least four consecutive tokens from player that did last move; search order is:
         # 1. vertical
         # 2. upper left - lower right
@@ -28,7 +28,7 @@ class Rules:
                     y += self.__Y_DIRECTIONS[alignment] * orientation
                     # check if field exists before accessing it
                     if self.__on_board(x, y, width, height):
-                        if board[(x, y)] == player_number:
+                        if board[(x, y)] == player_id:
                             # add (x, y) position to "line" because this field belongs to player that did last move
                             line += [(x, y)]
                         else:

@@ -1,4 +1,5 @@
 from random import choice
+from board import Board
 from player import Player
 from rules import Rules
 
@@ -8,60 +9,64 @@ class Bot(Player):
         # set variables (without help of user)
         self.__id = id
         self.__score = 0
-        self.__name = self.__choose_name()
-        self.__symbol = default_symbol
-        self.__depth = 5
-        self.__rules = Rules()
-
-    def __choose_name(self) -> str:
         # bot will always pick a random name from "NAMES" (inherited from super class "Player")
-        return choice(self.NAMES)
+        self.__name = choice(self.NAMES)
+        self.__symbol = default_symbol
 
-    def __negamax(self, board, depth, alhpa, beta, multiplier) -> tuple:
-        pass
-        """
-        if depth == 0 or self.__rules.check_game_over(board):
-            return (multiplier * score)
+    def get_move(self, board: Board, player_id: int, rules: Rules) -> int:
+        # find out which moves are valid
+        possible_moves = []
+        for x in range(board.width):
+            if rules.check_move(board.get_board(), board.height, x):
+                possible_moves += [x]
 
-        best_value = -9999
-        for i in range(height):
-            value = -1 * negamax()
-            best_value = max(best_value, value)
+        # this simple bot checks if it can win by playing a certain column first
+        for x in possible_moves:
+            board.do_move(x, player_id)
+            if rules.check_win(board.get_board(), board.width, board.height, board.get_last_move(), player_id):
+                # even though a winning move has been detected, undo it - "game" will handle further process
+                board.undo_move()
+                return x
+            # if bot cannot win with this move, undo it
+            board.undo_move()
 
-            alpha = max(alpha, value)
-            if alhpa >= beta:
-                break
+        # if bot cannot win in this round, it checks if opponent can win and blocks his move
+        opponent_player_id = 1 if player_id == 2 else 2
+        for x in possible_moves:
+            board.do_move(x, opponent_player_id)
+            if rules.check_win(board.get_board(), board.width, board.height, board.get_last_move(),
+                               opponent_player_id):
+                # make sure to undo the latest move - "game" will handle further process
+                board.undo_move()
+                return x
+            # if bot cannot prevent a win by the opponent with this move, undo it
+            board.undo_move()
+        # if no victory or defeat can be detected with this very limited search depth, play randomly
+        return choice(possible_moves)
 
-        return (best_value, -1)
-        """
-
-    def get_move(self, board) -> int:
-        pass
-        """
-        # "negamax" algorithm determines best move
-        return self.__negamax(board, self.__depth, -999, 999, 1)[1]
-        """
-
+    # "@property" decorator makes variables accessible from outside this class even though they're private
     @property
     def name(self):
         return self.__name
 
-    @name.setter
-    def name(self, name):
-        self.__name = name
+    @property
+    def id(self):
+        return self.__id
 
     @property
     def symbol(self):
         return self.__symbol
 
-    @symbol.setter
-    def symbol(self, symbol):
-        self.__symbol = symbol
-
     @property
     def score(self):
         return self.__score
 
+    # in case of a symbol collision, the symbol of a bot may be changed from outside the class
+    @symbol.setter
+    def symbol(self, symbol):
+        self.__symbol = symbol
+
+    # since the score needs to be updated from outside this class, it can be modified even though it's private
     @score.setter
     def score(self, score):
         self.__score = score

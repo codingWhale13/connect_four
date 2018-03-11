@@ -39,7 +39,7 @@ class DBInterface:
         self.__cursor.execute("SELECT state FROM board ORDER BY y, x;")
         for element in self.__cursor.fetchall():
             board[(x, y)] = element[0]
-            # if the end of a row on the board is reached, continue in the next row; if not, increase x by 1
+            # if the end of a row on the board is reached, continue in the row above; if not, increase x by 1
             if x == width - 1:
                 x = 0
                 y += 1
@@ -77,6 +77,10 @@ class DBInterface:
         # this command selects only the latest entry in table "history"
         self.__cursor.execute("SELECT x, y FROM history ORDER BY rowid DESC LIMIT 1;")
         return self.__cursor.fetchone()
+
+    def clear_last_move(self) -> None:
+        # this command deletes the latest entry in table "history"
+        self.__cursor.execute("DELETE FROM history WHERE rowid = (SELECT MAX(rowid) FROM history);")
 
     def clear_history(self) -> None:
         # delete all entries from table "history"

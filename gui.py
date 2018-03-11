@@ -1,3 +1,4 @@
+import os
 from fancy_print import FancyPrint
 
 
@@ -10,15 +11,32 @@ class GUI:
     def text(self, message, line_end: str = '\n'):
         print(message, end=line_end)
 
-    # use "fancy_print" for displaying colorful text
+    # use "fancy_print" for displaying colorful text (works only in PyCharm)
     def text_blue(self, message: str, line_end: str = '\n') -> None:
-        self.__fancy_print.blue(message, line_end)
+        if "PYCHARM_HOSTED" in os.environ:
+            self.__fancy_print.text_blue(message, line_end)
+        else:
+            print(message, end=line_end)
 
     def text_red(self, message: str, line_end: str = '\n') -> None:
-        self.__fancy_print.red(message, line_end)
+        if "PYCHARM_HOSTED" in os.environ:
+            self.__fancy_print.text_red(message, line_end)
+        else:
+            print(message, end=line_end)
 
     def text_yellow(self, message: str, line_end: str = '\n') -> None:
-        self.__fancy_print.yellow(message, line_end)
+        if "PYCHARM_HOSTED" in os.environ:
+            self.__fancy_print.text_yellow(message, line_end)
+        else:
+            print(message, end=line_end)
+
+    def clear_display(self):
+        if "PYCHARM_HOSTED" in os.environ:
+            # in PyCharm, the console is "cleared" by printing many line breaks
+            print('\n' * 100)
+        else:
+            # depending on the operating system, different commands are executed
+            os.system("cls" if os.name == "nt" else "clear")
 
     def show_board(self, board: dict, width: int, height: int, id_to_symbol: dict, winning_line: list = None) -> None:
         # firstly, print column names (usually from 1 to 7)

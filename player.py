@@ -1,8 +1,10 @@
 from random import choice
+from board import Board
 from gui import GUI
 
 
 class Player:
+    # this tuple of first names is public so class "Bot" - which inherits from Player - can use it as well
     # source: deron.meranda.us/data/census-derived-all-first.txt
     NAMES = (
         "Aaron", "Abbey", "Abbie", "Abby", "Abdul", "Abe", "Abel", "Abigail", "Abraham", "Abram", "Ada", "Adah",
@@ -493,9 +495,10 @@ class Player:
     def __choose_name(self, gui: GUI) -> str:
         while True:
             input_name = input("Player {}: Enter your name or hit ENTER to get a random one: ".format(self.__id))
+            gui.clear_display()
             if len(input_name) == 0:
                 # return one of 5163 random first names - that's fun!
-                return choice(self.NAMES)
+                return choice(type(self).NAMES)
             if len(input_name) < 100:
                 # this program is tolerant with user input - but a too long name is prevented
                 return input_name
@@ -505,7 +508,8 @@ class Player:
     def __choose_symbol(self, default_symbol: str, gui: GUI) -> str:
         while True:
             input_symbol = input(
-                "{}: Enter your character or hit ENTER to use default symbol '{}':".format(self.__name, default_symbol))
+                "{}: Enter a character or hit ENTER to use default symbol '{}': ".format(self.__name, default_symbol))
+            gui.clear_display()
             if len(input_symbol) == 0:
                 return default_symbol
             if len(input_symbol) == 1:
@@ -519,17 +523,22 @@ class Player:
             # only one character is allowed since otherwise the gui couldn't display the board well
             gui.text_red("ERROR: That's more than one character. Try again.")
 
-    def get_move(self, gui: GUI) -> int:
+    def get_move(self, board: Board, id_to_symbol: dict, gui: GUI) -> int:
         while True:
             input_move = input("{}: Enter column number to insert token: ".format(self.__name))
+            gui.clear_display()
             try:
                 input_move_integer = int(input_move)
-                if 0 < input_move_integer < 8:
+                if 0 < input_move_integer <= board.width:
                     # return zero-based number for further handling within program
                     return input_move_integer - 1
+                # show board once more so user can see what options there are
+                gui.show_board(board.get_board(), board.width, board.height, id_to_symbol)
                 # if input number is not between 1 and 7, user needs to give input again
-                gui.text_red("ERROR: There are only columns 1 - 7! Try again.")
+                gui.text_red("ERROR: Column {} does not exist! Try again.".format(input_move_integer))
             except ValueError:
+                # show board once more so user can see what options there are
+                gui.show_board(board.get_board(), board.width, board.height, id_to_symbol)
                 # only integers are accepted; a value error leads to a warning and user has to try once more
                 gui.text_red("ERROR: Input is not a number! Try again.")
 
@@ -538,30 +547,19 @@ class Player:
     def name(self):
         return self.__name
 
-    @name.setter
-    def name(self, name):
-        self.__name = name
-
     @property
     def id(self):
         return self.__id
-
-    @id.setter
-    def id(self, id):
-        self.__id = id
 
     @property
     def symbol(self):
         return self.__symbol
 
-    @symbol.setter
-    def symbol(self, symbol):
-        self.__symbol = symbol
-
     @property
     def score(self):
         return self.__score
 
+    # since the score needs to be updated from outside this class, it can be modified even though it's private
     @score.setter
     def score(self, score):
         self.__score = score
