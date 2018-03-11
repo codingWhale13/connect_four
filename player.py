@@ -1,5 +1,5 @@
 from random import choice
-from fancy_print import FancyPrint
+from gui import GUI
 
 
 class Player:
@@ -483,15 +483,14 @@ class Player:
         "Zoe", "Zofia", "Zoila", "Zola", "Zona", "Zonia", "Zora", "Zoraida", "Zula", "Zulema", "Zulma"
     )
 
-    def __init__(self, id: int, default_symbol: str) -> None:
-        self.__fancy_print = FancyPrint()
+    def __init__(self, id: int, default_symbol: str, gui: GUI) -> None:
         # set variables (some with help of user)
         self.__id = id
         self.__score = 0
-        self.__name = self.__choose_name()
-        self.__symbol = self.__choose_symbol(default_symbol)
+        self.__name = self.__choose_name(gui)
+        self.__symbol = self.__choose_symbol(default_symbol, gui)
 
-    def __choose_name(self) -> str:
+    def __choose_name(self, gui: GUI) -> str:
         while True:
             input_name = input("Player {}: Enter your name or hit ENTER to get a random one: ".format(self.__id))
             if len(input_name) == 0:
@@ -501,9 +500,9 @@ class Player:
                 # this program is tolerant with user input - but a too long name is prevented
                 return input_name
             # invalid input leads to a warning before program asks for input again
-            self.__fancy_print.red("ERROR: Your name is too long. Try again.")
+            gui.text_red("ERROR: Your name is too long. Try again.")
 
-    def __choose_symbol(self, default_symbol: str) -> str:
+    def __choose_symbol(self, default_symbol: str, gui: GUI) -> str:
         while True:
             input_symbol = input(
                 "{}: Enter your character or hit ENTER to use default symbol '{}':".format(self.__name, default_symbol))
@@ -515,12 +514,12 @@ class Player:
                     # correct input is returned
                     return input_symbol
                 else:
-                    self.__fancy_print.red("ERROR: This symbol is not allowed! Try again.")
+                    gui.text_red("ERROR: This symbol is not allowed! Try again.")
                     continue
             # only one character is allowed since otherwise the gui couldn't display the board well
-            self.__fancy_print.red("ERROR: That's more than one character. Try again.")
+            gui.text_red("ERROR: That's more than one character. Try again.")
 
-    def get_move(self) -> None:
+    def get_move(self, gui: GUI) -> int:
         while True:
             input_move = input("{}: Enter column number to insert token: ".format(self.__name))
             try:
@@ -529,10 +528,10 @@ class Player:
                     # return zero-based number for further handling within program
                     return input_move_integer - 1
                 # if input number is not between 1 and 7, user needs to give input again
-                self.__fancy_print.red("ERROR: There are only columns 1 - 7! Try again.")
+                gui.text_red("ERROR: There are only columns 1 - 7! Try again.")
             except ValueError:
                 # only integers are accepted; a value error leads to a warning and user has to try once more
-                self.__fancy_print.red("ERROR: Input is not a number! Try again.")
+                gui.text_red("ERROR: Input is not a number! Try again.")
 
     # "@property" decorator makes variables accessible from outside this class even though they're private
     @property

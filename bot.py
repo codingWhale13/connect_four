@@ -18,6 +18,8 @@ class Bot(Player):
         return choice(self.NAMES)
 
     def __negamax(self, board, depth, alhpa, beta, multiplier) -> tuple:
+        pass
+        """
         if depth == 0 or self.__rules.check_game_over(board):
             return (multiplier * score)
 
@@ -31,10 +33,14 @@ class Bot(Player):
                 break
 
         return (best_value, -1)
+        """
 
     def get_move(self, board) -> int:
+        pass
+        """
         # "negamax" algorithm determines best move
         return self.__negamax(board, self.__depth, -999, 999, 1)[1]
+        """
 
     @property
     def name(self):
