@@ -191,6 +191,8 @@ class Game:
         # in some situations (like changing the board dimensions and then wanting a replay), history might be corrupted
         if len(history) == 0:
             self.__gui.text_red("ERROR: Game history is no longer available after setting changes.")
+            input()
+            self.__gui.clear_display()
             return
 
         # reset board and history before "playing it again"
@@ -198,15 +200,23 @@ class Game:
         self.__board.clear_history()
 
         player_id = 1
-        for move in history:
+        # show all moves except the last one highlighting the current move as "winning_line"
+        for move in history[:-1]:
             # only x value is needed to play the move
             self.__board.do_move(move[0], player_id)
             # display current board
             self.__gui.show_board(self.__board.get_board(), self.__board.width, self.__board.height,
-                                  self.__id_to_symbol)
+                                  self.__id_to_symbol, [move])
             player_id = 1 if player_id == 2 else 2
             input()
             self.__gui.clear_display()
+        # play the final move
+        self.__board.do_move(history[-1][0], player_id)
+        # emphasize the winning line (if it exists)
+        winning_line = self.__rules.check_win(self.__board.get_board(), self.__board.width, self.__board.height,
+                                              history[-1], player_id)
+        self.__gui.show_board(self.__board.get_board(), self.__board.width, self.__board.height,
+                              self.__id_to_symbol, winning_line)
 
     def __change_board_dimensions(self):
         while True:
@@ -218,11 +228,12 @@ class Game:
             try:
                 input_width_int = int(input_width)
                 input_height_int = int(input_height)
-                if 0 < input_width_int <= 20 and 0 < input_height_int <= 20:
+                if 0 < input_width_int < 10 and 0 < input_height_int <= 20:
                     self.__board = Board(input_width_int, input_height_int)
+                    self.__board.clear_history()
                     self.__gui.text_blue("Alright, changes have been saved.")
                     return
-                self.__gui.text_red("ERROR: Width and height need to be between 1 and 20! Try again.")
+                self.__gui.text_red("ERROR: Width cannot exceed 9 and height cannot exceed 20! Try again.")
                 # wait for user to press any key
                 input()
             except ValueError:
@@ -231,8 +242,6 @@ class Game:
                 input()
 
     def __settings(self) -> None:
-        # clear history to make sure player cannot watch a replay of previous game after fiddling around in settings
-        self.__board.clear_history()
         while True:
             self.__gui.text("Welcome to the settings. Here's what you can do")
             self.__gui.text("-> change board dimensions (D)")
@@ -243,7 +252,6 @@ class Game:
                 return
             elif input_change_player_settings == 'r':
                 self.__initialize_session()
-
                 return
             else:
                 self.__gui.text_red("ERROR: Your input is not an option.")
@@ -272,17 +280,24 @@ class Game:
                 self.__replay_match()
             elif input_decision == 's':
                 self.__settings()
+                # clear history to prevent player from replaying a previous game after fiddling around in settingsd
+                self.__board.clear_board()
+                self.__board.clear_history()
             elif input_decision == 'm':
                 self.__gui.text_blue("Cool, next match starts now!")
                 # wait for user to press any key
                 input()
                 self.__gui.clear_display()
+                self.__board.clear_board()
+                self.__board.clear_history()
                 return True
             elif input_decision == 'q':
                 self.__goodbye()
                 return False
             else:
                 self.__gui.text_red("ERROR: Your input is not an option.")
+                input()
+                self.__gui.clear_display()
 
     def __play(self) -> None:
         self.__gui.clear_display()
